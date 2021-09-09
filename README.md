@@ -17,4 +17,11 @@ git clone https://github.com/dikaeinstein/ghanalytics
 
 cd ghanalytics
 make fetch
+make build
 ```
+
+Run `ghanalytics -help | -h` to get help and see available options
+
+### Available Commands
+
+- `listTop10Users` — List Top 10 active users sorted by amount of PRs created and commits pushed

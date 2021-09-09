@@ -52,7 +52,7 @@ type Analytics struct {
 	listOptions ListOptions
 }
 
-func NewAnalytics(store Store) *Analytics {
+func New(store Store) *Analytics {
 	return &Analytics{store: store}
 }
 

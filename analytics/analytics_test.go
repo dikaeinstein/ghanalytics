@@ -55,7 +55,7 @@ func TestListTopNUsers(t *testing.T) {
 	}
 
 	store := createStore(t)
-	a := analytics.NewAnalytics(store)
+	a := analytics.New(store)
 
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
@@ -74,7 +74,7 @@ func TestListTopNUsers(t *testing.T) {
 
 			expectedNActors := expectedActors[0:tC.limit]
 			if !reflect.DeepEqual(topNUsers, expectedNActors) {
-				t.Errorf("Wrong topNUsers returned. want %v; got %v",
+				t.Errorf("Wrong topNUsers returned. want %+v; got %+v",
 					expectedNActors, topNUsers)
 			}
 		})

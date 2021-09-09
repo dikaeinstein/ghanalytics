@@ -17,3 +17,7 @@ fetch:
 install-tools: fetch
 	@echo Installing tools from tools.go
 	@cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %
+
+## Build binary
+build:
+	@go build  -o ghanalytics main.go
