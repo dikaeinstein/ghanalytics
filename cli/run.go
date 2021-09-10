@@ -16,18 +16,12 @@ func Run() int {
 		fmt.Println(output)
 		return 2
 	}
-
 	if err != nil {
-		fmt.Println("got error:", err)
-		fmt.Println("output:\n", output)
+		fmt.Println("error:", err)
 		return 1
 	}
-	if len(conf.args) < 1 {
-		fmt.Println(usage)
-		return 2
-	}
 
-	if conf.help {
+	if conf.help || len(conf.args) < 1 {
 		fmt.Println(usage)
 		return 0
 	}
