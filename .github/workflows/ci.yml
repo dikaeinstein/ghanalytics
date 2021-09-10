@@ -24,3 +24,17 @@ jobs:
         env:
           COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: goveralls -coverprofile=cover.out -service=github
+  build:
+    name: Build Binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - name: Run build
+        run: make build
+      - name: Smoke Test Binary Artifact
+        run: ./ghanalytics -t
