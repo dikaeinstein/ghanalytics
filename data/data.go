@@ -9,6 +9,7 @@ import (
 	"github.com/dikaeinstein/ghanalytics/analytics"
 )
 
+// Store is an in-memory data storage for the Github CSV data
 type Store struct {
 	commits []analytics.Commit
 	events  []analytics.Event
@@ -16,6 +17,7 @@ type Store struct {
 	users   []analytics.Actor
 }
 
+// NewStore returns a new store that reads and loads its data from the CSV files
 func NewStore(actorsCSVFile, commitsCSVFile, eventsCSVFile, reposCSVFile io.Reader) (*Store, error) {
 	users, err := loadUsers(actorsCSVFile)
 	if err != nil {

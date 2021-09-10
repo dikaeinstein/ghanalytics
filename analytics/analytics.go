@@ -1,3 +1,5 @@
+// Package analytics provides functionalities for processing
+// Github event data.
 package analytics
 
 import "sort"
@@ -31,11 +33,13 @@ type Store interface {
 	GetRepos(f func(Repo) bool) ([]Repo, error)
 }
 
+//
 type ListOptions struct {
 	limit         int
 	sortCriterion []SortCriteria
 }
 
+// Analytics processes Github event data.
 type Analytics struct {
 	store       Store
 	listOptions ListOptions
