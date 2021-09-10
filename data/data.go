@@ -70,7 +70,7 @@ func loadUsers(csvFile io.Reader) ([]analytics.Actor, error) {
 		}
 
 		if len(line) < 2 {
-			return users, fmt.Errorf("Invalid file structure")
+			return users, fmt.Errorf("invalid file structure")
 		}
 
 		userID, err := strconv.ParseUint(line[0], 10, 64)
@@ -120,7 +120,7 @@ func loadCommits(csvFile io.Reader) ([]analytics.Commit, error) {
 		}
 
 		if len(line) < 3 {
-			return commits, fmt.Errorf("Invalid file structure")
+			return commits, fmt.Errorf("invalid file structure")
 		}
 
 		eventID, err := strconv.ParseUint(line[2], 10, 64)
@@ -171,7 +171,7 @@ func loadEvents(csvFile io.Reader) ([]analytics.Event, error) {
 		}
 
 		if len(line) < 4 {
-			return events, fmt.Errorf("Invalid file structure")
+			return events, fmt.Errorf("invalid file structure")
 		}
 
 		eventID, err := strconv.ParseUint(line[0], 10, 64)
@@ -231,7 +231,7 @@ func loadRepos(csvFile io.Reader) ([]analytics.Repo, error) {
 		}
 
 		if len(line) < 2 {
-			return repos, fmt.Errorf("Invalid file structure")
+			return repos, fmt.Errorf("invalid file structure")
 		}
 
 		repoID, err := strconv.ParseUint(line[0], 10, 64)
