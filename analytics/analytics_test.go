@@ -81,6 +81,68 @@ func TestListTopNUsers(t *testing.T) {
 	}
 }
 
+func TestListTopNRepos(t *testing.T) {
+	expectedActors := []analytics.Repo{
+		{ID: 42018768, Name: "Lombiq/Helpful-Libraries"},
+		{ID: 62069489, Name: "multicharts/scanner-check"},
+		{ID: 204268723, Name: "supershell2019/conf"},
+		{ID: 231160326, Name: "MatoPlus/react-jsx-lab-cb-gh-000"},
+		{ID: 6495132, Name: "wikimedia/mediawiki-extensions-CentralAuth"},
+		{ID: 20598648, Name: "ElvUI-WotLK/ElvUI"},
+		{ID: 45993266, Name: "patsonluk/airline"},
+		{ID: 53678002, Name: "qiyanjun/books2read"},
+		{ID: 67651864, Name: "Lombiq/Git-Hg-Mirror-Common"},
+		{ID: 83585690, Name: "TedTschopp/tschopp.net"},
+	}
+
+	testCases := []struct {
+		desc          string
+		limit         int
+		sortCriterion []analytics.SortCriteria
+	}{
+		{
+			desc:  "Top 5 Repos",
+			limit: 5,
+			sortCriterion: []analytics.SortCriteria{
+				analytics.CommitsPushed,
+			},
+		},
+		{
+			desc:  "Top 10 Repos",
+			limit: 10,
+			sortCriterion: []analytics.SortCriteria{
+				analytics.CommitsPushed,
+			},
+		},
+	}
+
+	store := createStore(t)
+	a := analytics.New(store)
+
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			topNRepos, err := a.ListRepos(
+				analytics.Sort(tC.sortCriterion),
+				analytics.Limit(tC.limit),
+			)
+			if err != nil {
+				t.Error(err)
+			}
+
+			if len(topNRepos) != tC.limit {
+				t.Errorf("Length of topNRepos does not match. want %d; got %d",
+					tC.limit, len(topNRepos))
+			}
+
+			expectedNActors := expectedActors[0:tC.limit]
+			if !reflect.DeepEqual(topNRepos, expectedNActors) {
+				t.Errorf("Wrong topNRepos returned. want %+v; got %+v",
+					expectedNActors, topNRepos)
+			}
+		})
+	}
+}
+
 func createStore(t *testing.T) *data.Store {
 	t.Helper()
 

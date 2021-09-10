@@ -13,12 +13,18 @@ type Config struct {
 	args []string
 }
 
-const usage = `ghanalytics is a CLI tool which analyzes Github event data for 1 hour.
+const usage = `GhAnalytics is a CLI tool which analyzes Github event data for 1 hour.
 
-Usage of ghanalytics:
+Usage:
+  ghanalytics [command]
 
-$ ghanalytics listTopTenUsers
-`
+Available Commands:
+  topTenUsers			Top 10 active users sorted by amount of PRs created and commits.
+  top10ReposByCommitsPushed	Top 10 repositories sorted by amount of commits pushed.
+  top10ReposByWatchEvents	Top 10 repositories sorted by amount of watch events.
+
+Flags:
+  -h, -help	Show help`
 
 // ParseFlags parses the command-line arguments provided to the program.
 // Typically os.Args[0] is provided as 'progname' and os.args[1:] as 'args'.

@@ -2,17 +2,6 @@ package analytics
 
 import "sort"
 
-// const (
-// 	CreateEvent       = "CreateEvent"
-// 	DeleteEvent       = "DeleteEvent"
-// 	ForkEvent         = "ForkEvent"
-// 	IssueCommentEvent = "IssueCommentEvent"
-// 	IssuesEvent       = "IssuesEvent"
-// 	PullRequestEvent  = "PullRequestEvent"
-// 	PushEvent         = "PushEvent"
-// 	WatchEvent        = "WatchEvent"
-// )
-
 type Actor struct {
 	ID       uint64
 	Username string
@@ -67,12 +56,8 @@ const (
 const (
 	PullRequestEvent EventType = "PullRequestEvent"
 	PushEvent        EventType = "PushEvent"
+	WatchEvent       EventType = "WatchEvent"
 )
-
-type EventsCountByUserID struct {
-	UserID      uint64
-	EventsCount int
-}
 
 func Limit(size int) func(*Analytics) error {
 	return func(a *Analytics) error {
@@ -98,8 +83,9 @@ func (a *Analytics) setListOptionsSortCriterion(sortCriterion []SortCriteria) er
 
 func (a *Analytics) buildList(sortCriterion []SortCriteria) []EventType {
 	sortToEventType := map[SortCriteria]EventType{
-		CommitsPushed: PushEvent,
-		PrCreated:     PullRequestEvent,
+		CommitsPushed:            PushEvent,
+		PrCreated:                PullRequestEvent,
+		SortCriteria(WatchEvent): WatchEvent,
 	}
 
 	var filterEventTypes []EventType
@@ -119,6 +105,11 @@ func (a *Analytics) parseListOptions(options []func(*Analytics) error) error {
 	}
 
 	return nil
+}
+
+type EventsCountByUserID struct {
+	UserID      uint64
+	EventsCount int
 }
 
 func (a *Analytics) ListUsers(options ...func(*Analytics) error) ([]Actor, error) {
@@ -195,6 +186,86 @@ func (a *Analytics) ListUsers(options ...func(*Analytics) error) ([]Actor, error
 
 	topNUsers := sortedUsers[0:a.listOptions.limit]
 	return topNUsers, nil
+}
+
+type EventsCountByRepoID struct {
+	RepoID      uint64
+	EventsCount int
+}
+
+func (a *Analytics) ListRepos(options ...func(*Analytics) error) ([]Repo, error) {
+	err := a.parseListOptions(options)
+	if err != nil {
+		return nil, err
+	}
+
+	filterEventTypes := a.buildList(a.listOptions.sortCriterion)
+	events, err := a.store.GetEvents(func(e Event) bool {
+		for _, evt := range filterEventTypes {
+			if evt == e.Type {
+				return true
+			}
+		}
+		return false
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	eventsCollection := make([]Element, len(events))
+	for i, e := range events {
+		eventsCollection[i] = Element{Value: e}
+	}
+
+	eventsByRepoID := a.GroupBy(eventsCollection, func(el Element) interface{} {
+		evt, _ := el.Value.(Event)
+		return evt.RepoID
+	})
+
+	// To store the keys in slice in sorted order
+	keys := make([]uint64, len(eventsByRepoID))
+	i := 0
+	for k := range eventsByRepoID {
+		userID, _ := k.(uint64)
+		keys[i] = userID
+		i++
+	}
+	sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+	listOfEventsCountByRepoID := make([]EventsCountByRepoID, len(eventsByRepoID))
+	idx := 0
+	for _, k := range keys {
+		v := eventsByRepoID[k]
+		listOfEventsCountByRepoID[idx] = EventsCountByRepoID{
+			RepoID:      k,
+			EventsCount: len(v),
+		}
+		idx++
+	}
+
+	sort.SliceStable(listOfEventsCountByRepoID, func(i, j int) bool {
+		return listOfEventsCountByRepoID[i].EventsCount > listOfEventsCountByRepoID[j].EventsCount
+	})
+
+	repos, err := a.store.GetRepos(func(r Repo) bool {
+		_, ok := eventsByRepoID[r.ID]
+		return ok
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var sortedRepos []Repo
+	for _, v := range listOfEventsCountByRepoID {
+		for _, r := range repos {
+			if v.RepoID == r.ID {
+				sortedRepos = append(sortedRepos, r)
+			}
+		}
+	}
+
+	topNRepos := sortedRepos[0:a.listOptions.limit]
+	return topNRepos, nil
 }
 
 type Element struct {

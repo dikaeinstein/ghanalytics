@@ -67,14 +67,18 @@ func run(conf *Config) error {
 	an := analytics.New(store)
 
 	switch conf.args[0] {
-	case "listTop10Users":
-		return handleListUsers(an)
+	case "top10Users":
+		return handletop10Users(an)
+	case "top10ReposByCommitsPushed":
+		return handletop10ReposByCommitsPushed(an)
+	case "top10ReposByWatchEvents":
+		return handletop10ReposByByWatchEvents(an)
 	default:
 		return fmt.Errorf("unknown subcommand: %s", conf.args[0])
 	}
 }
 
-func handleListUsers(an *analytics.Analytics) error {
+func handletop10Users(an *analytics.Analytics) error {
 	users, err := an.ListUsers(
 		analytics.Sort([]analytics.SortCriteria{
 			analytics.CommitsPushed, analytics.PrCreated,
@@ -90,6 +94,44 @@ func handleListUsers(an *analytics.Analytics) error {
 	fmt.Fprintln(tw, "-\t-\t")
 	for _, u := range users {
 		fmt.Fprintf(tw, "%v\t%v\t\n", u.ID, u.Username)
+	}
+	return tw.Flush()
+}
+
+func handletop10ReposByCommitsPushed(an *analytics.Analytics) error {
+	repos, err := an.ListRepos(
+		analytics.Sort([]analytics.SortCriteria{
+			analytics.CommitsPushed,
+		}),
+		analytics.Limit(10),
+	)
+	if err != nil {
+		return err
+	}
+
+	return printRepos(repos)
+}
+
+func handletop10ReposByByWatchEvents(an *analytics.Analytics) error {
+	repos, err := an.ListRepos(
+		analytics.Sort([]analytics.SortCriteria{
+			analytics.SortCriteria(analytics.WatchEvent),
+		}),
+		analytics.Limit(10),
+	)
+	if err != nil {
+		return err
+	}
+
+	return printRepos(repos)
+}
+
+func printRepos(repos []analytics.Repo) error {
+	tw := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', tabwriter.Debug)
+	fmt.Fprintln(tw, "ID\tName\t")
+	fmt.Fprintln(tw, "-\t-\t")
+	for _, r := range repos {
+		fmt.Fprintf(tw, "%v\t%v\t\n", r.ID, r.Name)
 	}
 	return tw.Flush()
 }

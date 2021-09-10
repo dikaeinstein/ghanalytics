@@ -20,8 +20,10 @@ make fetch
 make build
 ```
 
-Run `ghanalytics -help | -h` to get help and see available options
+Run `./ghanalytics -help | -h` to get help and see available options
 
 ### Available Commands
 
-- `listTop10Users` — List Top 10 active users sorted by amount of PRs created and commits pushed
+- `top10Users` — Top 10 active users sorted by amount of PRs created and commits pushed.
+- `top10ReposByCommitsPushed` — Top 10 repositories sorted by amount of commits pushed.
+- `top10ReposByWatchEvents` — Top 10 repositories sorted by amount of watch events.
