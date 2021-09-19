@@ -82,7 +82,7 @@ func TestListTopNUsers(t *testing.T) {
 }
 
 func TestListTopNRepos(t *testing.T) {
-	expectedActors := []analytics.Repo{
+	expectedRepos := []analytics.Repo{
 		{ID: 42018768, Name: "Lombiq/Helpful-Libraries"},
 		{ID: 62069489, Name: "multicharts/scanner-check"},
 		{ID: 204268723, Name: "supershell2019/conf"},
@@ -134,10 +134,10 @@ func TestListTopNRepos(t *testing.T) {
 					tC.limit, len(topNRepos))
 			}
 
-			expectedNActors := expectedActors[0:tC.limit]
-			if !reflect.DeepEqual(topNRepos, expectedNActors) {
+			expectedNRepos := expectedRepos[0:tC.limit]
+			if !reflect.DeepEqual(topNRepos, expectedNRepos) {
 				t.Errorf("Wrong topNRepos returned. want %+v; got %+v",
-					expectedNActors, topNRepos)
+					expectedNRepos, topNRepos)
 			}
 		})
 	}
